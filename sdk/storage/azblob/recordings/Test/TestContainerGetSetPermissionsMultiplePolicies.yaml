@@ -10,10 +10,10 @@ interactions:
       Authorization:
       - sanitized
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:39:23 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:47:59 GMT
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/goccontainergetsetpermissionsmultiplepolicies?restype=container
     method: PUT
@@ -23,22 +23,24 @@ interactions:
       Content-Length:
       - "0"
       Date:
-      - Thu, 26 May 2022 05:39:22 GMT
+      - Mon, 25 Jul 2022 11:47:58 GMT
       Etag:
-      - '"0x8DA3EDA16BAC489"'
+      - '"0x8DA6E33852B1FCD"'
       Last-Modified:
-      - Thu, 26 May 2022 05:39:23 GMT
+      - Mon, 25 Jul 2022 11:47:58 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Request-Id:
-      - 05b73597-d01e-0014-76c2-70c717000000
+      - 2bd6359f-801e-006b-0a1c-a0088c000000
       X-Ms-Version:
       - "2020-10-02"
     status: 201 Created
     code: 201
     duration: ""
 - request:
-    body: <SignedIdentifiers><SignedIdentifier><AccessPolicy><Permission>rw</Permission><Expiry>2021-06-11T20:05:00Z</Expiry><Start>2021-06-11T20:00:00Z</Start></AccessPolicy><Id>0000</Id></SignedIdentifier><SignedIdentifier><AccessPolicy><Permission>r</Permission><Expiry>2021-06-11T20:01:00Z</Expiry><Start>2021-06-11T20:00:00Z</Start></AccessPolicy><Id>0001</Id></SignedIdentifier></SignedIdentifiers>
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <SignedIdentifiers><SignedIdentifier><AccessPolicy><Permission>rw</Permission><Expiry>2021-06-11T20:05:00Z</Expiry><Start>2021-06-11T20:00:00Z</Start></AccessPolicy><Id>0000</Id></SignedIdentifier><SignedIdentifier><AccessPolicy><Permission>r</Permission><Expiry>2021-06-11T20:01:00Z</Expiry><Start>2021-06-11T20:00:00Z</Start></AccessPolicy><Id>0001</Id></SignedIdentifier></SignedIdentifiers>
     form: {}
     headers:
       Accept:
@@ -46,14 +48,14 @@ interactions:
       Authorization:
       - sanitized
       Content-Length:
-      - "394"
+      - "433"
       Content-Type:
       - application/xml
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:39:23 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:47:59 GMT
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/goccontainergetsetpermissionsmultiplepolicies?comp=acl&restype=container
     method: PUT
@@ -63,15 +65,15 @@ interactions:
       Content-Length:
       - "0"
       Date:
-      - Thu, 26 May 2022 05:39:23 GMT
+      - Mon, 25 Jul 2022 11:47:58 GMT
       Etag:
-      - '"0x8DA3EDA16DF3921"'
+      - '"0x8DA6E33854F8157"'
       Last-Modified:
-      - Thu, 26 May 2022 05:39:23 GMT
+      - Mon, 25 Jul 2022 11:47:58 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Request-Id:
-      - 05b736b3-d01e-0014-77c2-70c717000000
+      - 2bd636b8-801e-006b-121c-a0088c000000
       X-Ms-Version:
       - "2020-10-02"
     status: 200 OK
@@ -86,10 +88,10 @@ interactions:
       Authorization:
       - sanitized
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:39:23 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:47:59 GMT
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/goccontainergetsetpermissionsmultiplepolicies?comp=acl&restype=container
     method: GET
@@ -99,15 +101,15 @@ interactions:
       Content-Type:
       - application/xml
       Date:
-      - Thu, 26 May 2022 05:39:23 GMT
+      - Mon, 25 Jul 2022 11:47:58 GMT
       Etag:
-      - '"0x8DA3EDA16DF3921"'
+      - '"0x8DA6E33854F8157"'
       Last-Modified:
-      - Thu, 26 May 2022 05:39:23 GMT
+      - Mon, 25 Jul 2022 11:47:58 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Request-Id:
-      - 05b7379b-d01e-0014-4bc2-70c717000000
+      - 2bd637b4-801e-006b-761c-a0088c000000
       X-Ms-Version:
       - "2020-10-02"
     status: 200 OK
@@ -122,10 +124,10 @@ interactions:
       Authorization:
       - sanitized
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:39:24 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:47:59 GMT
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/goccontainergetsetpermissionsmultiplepolicies?restype=container
     method: DELETE
@@ -135,11 +137,11 @@ interactions:
       Content-Length:
       - "0"
       Date:
-      - Thu, 26 May 2022 05:39:23 GMT
+      - Mon, 25 Jul 2022 11:47:59 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Request-Id:
-      - 05b73873-d01e-0014-0dc2-70c717000000
+      - 2bd6398b-801e-006b-231c-a0088c000000
       X-Ms-Version:
       - "2020-10-02"
     status: 202 Accepted

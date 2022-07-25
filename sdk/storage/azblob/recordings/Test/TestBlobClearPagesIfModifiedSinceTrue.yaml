@@ -10,10 +10,10 @@ interactions:
       Authorization:
       - sanitized
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:34:13 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:42:23 GMT
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/gocblobclearpagesifmodifiedsincetrue?restype=container
     method: PUT
@@ -23,15 +23,15 @@ interactions:
       Content-Length:
       - "0"
       Date:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:22 GMT
       Etag:
-      - '"0x8DA3ED95DE889B0"'
+      - '"0x8DA6E32BD4F8A9F"'
       Last-Modified:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:22 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Request-Id:
-      - 05b08873-d01e-0014-80c2-70c717000000
+      - 2bd0b4ee-801e-006b-621b-a0088c000000
       X-Ms-Version:
       - "2020-10-02"
     status: 201 Created
@@ -48,14 +48,14 @@ interactions:
       Content-Length:
       - "0"
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
-      X-Ms-Blob-Content-Length:
-      - "5120"
-      X-Ms-Blob-Type:
-      - PageBlob
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:34:13 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:42:23 GMT
+      x-ms-blob-content-length:
+      - "5120"
+      x-ms-blob-type:
+      - PageBlob
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/gocblobclearpagesifmodifiedsincetrue/gotestblobblobclearpagesifmodifiedsincetrue
     method: PUT
@@ -65,21 +65,21 @@ interactions:
       Content-Length:
       - "0"
       Date:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:22 GMT
       Etag:
-      - '"0x8DA3ED95E0DAEEA"'
+      - '"0x8DA6E32BD73E109"'
       Last-Modified:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:23 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Request-Id:
-      - 05b08a51-d01e-0014-46c2-70c717000000
+      - 2bd0b668-801e-006b-461b-a0088c000000
       X-Ms-Request-Server-Encrypted:
       - "true"
       X-Ms-Version:
       - "2020-10-02"
       X-Ms-Version-Id:
-      - "2022-05-26T05:34:13.3126890Z"
+      - "2022-07-25T11:42:23.2254729Z"
     status: 201 Created
     code: 201
     duration: ""
@@ -96,14 +96,14 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:34:13 GMT
-      X-Ms-Page-Write:
+      - Mon, 25 Jul 2022 11:42:24 GMT
+      x-ms-page-write:
       - update
-      X-Ms-Range:
+      x-ms-range:
       - bytes=0-511
-      X-Ms-Version:
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/gocblobclearpagesifmodifiedsincetrue/gotestblobblobclearpagesifmodifiedsincetrue?comp=page
     method: PUT
@@ -113,11 +113,11 @@ interactions:
       Content-Length:
       - "0"
       Date:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:22 GMT
       Etag:
-      - '"0x8DA3ED95E3729CF"'
+      - '"0x8DA6E32BD9853BA"'
       Last-Modified:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:23 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Blob-Sequence-Number:
@@ -125,7 +125,7 @@ interactions:
       X-Ms-Content-Crc64:
       - qaHtT3LwL1s=
       X-Ms-Request-Id:
-      - 05b08bd5-d01e-0014-39c2-70c717000000
+      - 2bd0b7a6-801e-006b-671b-a0088c000000
       X-Ms-Request-Server-Encrypted:
       - "true"
       X-Ms-Version:
@@ -142,10 +142,10 @@ interactions:
       Authorization:
       - sanitized
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:34:14 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:42:24 GMT
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/gocblobclearpagesifmodifiedsincetrue/gotestblobblobclearpagesifmodifiedsincetrue
     method: HEAD
@@ -159,11 +159,11 @@ interactions:
       Content-Type:
       - application/octet-stream
       Date:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:22 GMT
       Etag:
-      - '"0x8DA3ED95E3729CF"'
+      - '"0x8DA6E32BD9853BA"'
       Last-Modified:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:23 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Blob-Sequence-Number:
@@ -171,7 +171,7 @@ interactions:
       X-Ms-Blob-Type:
       - PageBlob
       X-Ms-Creation-Time:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:23 GMT
       X-Ms-Is-Current-Version:
       - "true"
       X-Ms-Lease-State:
@@ -179,13 +179,13 @@ interactions:
       X-Ms-Lease-Status:
       - unlocked
       X-Ms-Request-Id:
-      - 05b08d91-d01e-0014-43c2-70c717000000
+      - 2bd0b966-801e-006b-091b-a0088c000000
       X-Ms-Server-Encrypted:
       - "true"
       X-Ms-Version:
       - "2020-10-02"
       X-Ms-Version-Id:
-      - "2022-05-26T05:34:13.3126890Z"
+      - "2022-07-25T11:42:23.2254729Z"
     status: 200 OK
     code: 200
     duration: ""
@@ -200,16 +200,16 @@ interactions:
       Content-Length:
       - "0"
       If-Modified-Since:
-      - Thu, 26 May 2022 05:34:03 GMT
+      - Mon, 25 Jul 2022 11:42:12 GMT
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:34:14 GMT
-      X-Ms-Page-Write:
+      - Mon, 25 Jul 2022 11:42:24 GMT
+      x-ms-page-write:
       - clear
-      X-Ms-Range:
+      x-ms-range:
       - bytes=0-511
-      X-Ms-Version:
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/gocblobclearpagesifmodifiedsincetrue/gotestblobblobclearpagesifmodifiedsincetrue?comp=page
     method: PUT
@@ -219,17 +219,17 @@ interactions:
       Content-Length:
       - "0"
       Date:
-      - Thu, 26 May 2022 05:34:13 GMT
+      - Mon, 25 Jul 2022 11:42:23 GMT
       Etag:
-      - '"0x8DA3ED95E7EFDA6"'
+      - '"0x8DA6E32BDF24DAC"'
       Last-Modified:
-      - Thu, 26 May 2022 05:34:14 GMT
+      - Mon, 25 Jul 2022 11:42:24 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Blob-Sequence-Number:
       - "0"
       X-Ms-Request-Id:
-      - 05b08f36-d01e-0014-5bc2-70c717000000
+      - 2bd0ba75-801e-006b-041b-a0088c000000
       X-Ms-Version:
       - "2020-10-02"
     status: 201 Created
@@ -244,10 +244,10 @@ interactions:
       Authorization:
       - sanitized
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:34:14 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:42:25 GMT
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/gocblobclearpagesifmodifiedsincetrue/gotestblobblobclearpagesifmodifiedsincetrue?comp=pagelist
     method: GET
@@ -257,17 +257,17 @@ interactions:
       Content-Type:
       - application/xml
       Date:
-      - Thu, 26 May 2022 05:34:14 GMT
+      - Mon, 25 Jul 2022 11:42:23 GMT
       Etag:
-      - '"0x8DA3ED95E7EFDA6"'
+      - '"0x8DA6E32BDF24DAC"'
       Last-Modified:
-      - Thu, 26 May 2022 05:34:14 GMT
+      - Mon, 25 Jul 2022 11:42:24 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Blob-Content-Length:
       - "5120"
       X-Ms-Request-Id:
-      - 05b09129-d01e-0014-2ec2-70c717000000
+      - 2bd0bbdd-801e-006b-541b-a0088c000000
       X-Ms-Version:
       - "2020-10-02"
     status: 200 OK
@@ -282,10 +282,10 @@ interactions:
       Authorization:
       - sanitized
       User-Agent:
-      - azsdk-go-azblob/v0.4.1 azsdk-go-azcore/v0.23.0 (go1.18.1; Windows_NT)
+      - azsdk-go-azblob/v0.5.0 (go1.18.1; Windows_NT)
       X-Ms-Date:
-      - Thu, 26 May 2022 05:34:14 GMT
-      X-Ms-Version:
+      - Mon, 25 Jul 2022 11:42:25 GMT
+      x-ms-version:
       - "2020-10-02"
     url: https://azureblobstoragecanada.blob.core.windows.net/gocblobclearpagesifmodifiedsincetrue?restype=container
     method: DELETE
@@ -295,11 +295,11 @@ interactions:
       Content-Length:
       - "0"
       Date:
-      - Thu, 26 May 2022 05:34:14 GMT
+      - Mon, 25 Jul 2022 11:42:23 GMT
       Server:
       - Windows-Azure-Blob/1.0 Microsoft-HTTPAPI/2.0
       X-Ms-Request-Id:
-      - 05b09336-d01e-0014-1dc2-70c717000000
+      - 2bd0be00-801e-006b-551b-a0088c000000
       X-Ms-Version:
       - "2020-10-02"
     status: 202 Accepted

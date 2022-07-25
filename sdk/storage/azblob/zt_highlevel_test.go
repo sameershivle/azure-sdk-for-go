@@ -2,14 +2,17 @@
 // +build go1.18
 
 // Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
-package azblob
+package azblob_test
 
 import (
 	"context"
 	"errors"
 	testframework "github.com/Azure/azure-sdk-for-go/sdk/internal/recording"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blockblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/internal/shared"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
@@ -53,7 +56,7 @@ func performUploadStreamToBlockBlobTest(_require *require.Assertions, testName s
 
 	// Perform UploadStream
 	_, err = blobClient.UploadStream(ctx, blobContentReader,
-		&UploadStreamOptions{BufferSize: bufferSize, MaxBuffers: maxBuffers})
+		&blockblob.UploadStreamOptions{BufferSize: bufferSize, MaxBuffers: maxBuffers})
 
 	// Assert that upload was successful
 	_require.Equal(err, nil)
@@ -64,7 +67,7 @@ func performUploadStreamToBlockBlobTest(_require *require.Assertions, testName s
 	_require.Nil(err)
 
 	// Assert that the content is correct
-	actualBlobData, err := ioutil.ReadAll(downloadResponse.Body(nil))
+	actualBlobData, err := ioutil.ReadAll(downloadResponse.BodyReader(nil))
 	_require.Nil(err)
 	_require.Equal(len(actualBlobData), blobSize)
 	_require.EqualValues(actualBlobData, blobData)
@@ -154,7 +157,7 @@ func performUploadAndDownloadFileTest(_require *require.Assertions, testName str
 
 	// Upload the file to a block blob
 	_, err = bbClient.UploadFile(context.Background(), file,
-		&UploadOption{
+		&blockblob.UploadReaderAtToBlockBlobOption{
 			BlockSize:   int64(blockSize),
 			Parallelism: uint16(parallelism),
 			// If Progress is non-nil, this function is called periodically as bytes are uploaded.
@@ -179,9 +182,9 @@ func performUploadAndDownloadFileTest(_require *require.Assertions, testName str
 	}(destFileName)
 
 	// Perform download
-	err = bbClient.DownloadToFile(context.Background(), int64(downloadOffset), int64(downloadCount),
+	err = bbClient.BlobClient().DownloadToFile(context.Background(), int64(downloadOffset), int64(downloadCount),
 		destFile,
-		&DownloadOptions{
+		&blob.DownloadToFileOptions{
 			BlockSize:   int64(blockSize),
 			Parallelism: uint16(parallelism),
 			// If Progress is non-nil, this function is called periodically as bytes are uploaded.
@@ -195,7 +198,7 @@ func performUploadAndDownloadFileTest(_require *require.Assertions, testName str
 
 	// Assert downloaded data is consistent
 	var destBuffer []byte
-	if downloadCount == CountToEnd {
+	if downloadCount == blob.CountToEnd {
 		destBuffer = make([]byte, fileSize-downloadOffset)
 	} else {
 		destBuffer = make([]byte, downloadCount)
@@ -316,7 +319,7 @@ func performUploadAndDownloadBufferTest(_require *require.Assertions, testName s
 
 	// Pass the Context, stream, stream size, block blob URL, and options to StreamToBlockBlob
 	_, err = bbClient.UploadBuffer(context.Background(), bytesToUpload,
-		&UploadOption{
+		&blockblob.UploadReaderAtToBlockBlobOption{
 			BlockSize:   int64(blockSize),
 			Parallelism: uint16(parallelism),
 			// If Progress is non-nil, this function is called periodically as bytes are uploaded.
@@ -329,15 +332,15 @@ func performUploadAndDownloadBufferTest(_require *require.Assertions, testName s
 
 	// Set up buffer to download the blob to
 	var destBuffer []byte
-	if downloadCount == CountToEnd {
+	if downloadCount == blob.CountToEnd {
 		destBuffer = make([]byte, blobSize-downloadOffset)
 	} else {
 		destBuffer = make([]byte, downloadCount)
 	}
 
 	// Download the blob to a buffer
-	err = bbClient.DownloadToBuffer(context.Background(), int64(downloadOffset), int64(downloadCount),
-		destBuffer, &DownloadOptions{
+	err = bbClient.BlobClient().DownloadToBuffer(context.Background(), int64(downloadOffset), int64(downloadCount),
+		destBuffer, &blob.DownloadToBufferOptions{
 			BlockSize:   int64(blockSize),
 			Parallelism: uint16(parallelism),
 			// If Progress is non-nil, this function is called periodically as bytes are uploaded.
@@ -462,7 +465,7 @@ func (s *azblobUnrecordedTestSuite) TestBasicDoBatchTransfer() {
 		totalSizeCount := int64(0)
 		runCount := int64(0)
 
-		err := doBatchTransfer(ctx, &batchTransferOptions{
+		err := shared.DoBatchTransfer(ctx, &shared.BatchTransferOptions{
 			TransferSize: test.transferSize,
 			ChunkSize:    test.chunkSize,
 			Parallelism:  test.parallelism,
@@ -507,7 +510,7 @@ func (s *azblobUnrecordedTestSuite) TestDoBatchTransferWithError() {
 	mmf := mockMMF{failHandle: _require}
 	expectedFirstError := errors.New("#3 means trouble")
 
-	err := doBatchTransfer(ctx, &batchTransferOptions{
+	err := shared.DoBatchTransfer(ctx, &shared.BatchTransferOptions{
 		TransferSize: 5,
 		ChunkSize:    1,
 		Parallelism:  5,
@@ -568,11 +571,11 @@ func (s *azblobUnrecordedTestSuite) TestUploadStreamToBlobProperties() {
 
 	// Perform UploadStream
 	_, err = bbClient.UploadStream(ctx, blobContentReader,
-		&UploadStreamOptions{
+		&blockblob.UploadStreamOptions{
 			BufferSize:  bufferSize,
 			MaxBuffers:  maxBuffers,
 			Metadata:    basicMetadata,
-			BlobTags:    basicBlobTagsMap,
+			Tags:        basicBlobTagsMap,
 			HTTPHeaders: &basicHeaders,
 		})
 
@@ -584,7 +587,7 @@ func (s *azblobUnrecordedTestSuite) TestUploadStreamToBlobProperties() {
 	_require.NoError(err)
 	_require.EqualValues(getPropertiesResp.Metadata, basicMetadata)
 	_require.Equal(*getPropertiesResp.TagCount, int64(len(basicBlobTagsMap)))
-	_require.Equal(getPropertiesResp.GetHTTPHeaders(), basicHeaders)
+	_require.Equal(blob.ParseHTTPHeaders(getPropertiesResp), basicHeaders)
 
 	getTagsResp, err := bbClient.GetTags(ctx, nil)
 	_require.NoError(err)
@@ -598,7 +601,7 @@ func (s *azblobUnrecordedTestSuite) TestUploadStreamToBlobProperties() {
 	_require.NoError(err)
 
 	// Assert that the content is correct
-	actualBlobData, err := ioutil.ReadAll(downloadResponse.Body(nil))
+	actualBlobData, err := ioutil.ReadAll(downloadResponse.BodyReader(nil))
 	_require.NoError(err)
 	_require.Equal(len(actualBlobData), blobSize)
 	_require.EqualValues(actualBlobData, blobData)

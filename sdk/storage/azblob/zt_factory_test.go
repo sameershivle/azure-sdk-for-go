@@ -2,9 +2,9 @@
 // +build go1.18
 
 // Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
-package azblob
+package azblob_test
 
 import (
 	"bytes"
@@ -15,7 +15,13 @@ import (
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	testframework "github.com/Azure/azure-sdk-for-go/sdk/internal/recording"
-	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/internal"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/appendblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blockblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/pageblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/service"
 	"github.com/stretchr/testify/require"
 	"io"
 	"math/rand"
@@ -57,7 +63,7 @@ var (
 	blobContentEncoding    = "my_encoding"
 )
 
-var basicHeaders = BlobHTTPHeaders{
+var basicHeaders = blob.HTTPHeaders{
 	BlobContentType:        &blobContentType,
 	BlobContentDisposition: &blobContentDisposition,
 	BlobCacheControl:       &blobCacheControl,
@@ -109,46 +115,30 @@ func getRequiredEnv(name string) (string, error) {
 func getAccountInfo(recording *testframework.Recording, accountType testAccountType) (string, string) {
 	accountNameEnvVar := string(accountType) + AccountNameEnvVar
 	accountKeyEnvVar := string(accountType) + AccountKeyEnvVar
-	var err error
 	accountName, accountKey := "", ""
 	if recording == nil {
-		accountName, err = getRequiredEnv(accountNameEnvVar)
-		//if err != nil {
-		//	log.Fatalln(err)
-		//}
-		_ = err
-		accountKey, err = getRequiredEnv(accountKeyEnvVar)
-		//if err != nil {
-		//	log.Fatalln(err)
-		//}
-		_ = err
+		accountName, _ = getRequiredEnv(accountNameEnvVar)
+		accountKey, _ = getRequiredEnv(accountKeyEnvVar)
+
 	} else {
-		accountName, err = recording.GetEnvVar(accountNameEnvVar, testframework.NoSanitization)
-		//if err != nil {
-		//	log.Fatalln(err)
-		//}
-		_ = err
-		accountKey, err = recording.GetEnvVar(accountKeyEnvVar, testframework.Secret_Base64String)
-		//if err != nil {
-		//	log.Fatalln(err)
-		//}
-		_ = err
+		accountName, _ = recording.GetEnvVar(accountNameEnvVar, testframework.NoSanitization)
+		accountKey, _ = recording.GetEnvVar(accountKeyEnvVar, testframework.Secret_Base64String)
 	}
 	return accountName, accountKey
 }
 
-func getGenericCredential(recording *testframework.Recording, accountType testAccountType) (*SharedKeyCredential, error) {
+func getGenericCredential(recording *testframework.Recording, accountType testAccountType) (*azblob.SharedKeyCredential, error) {
 	accountName, accountKey := getAccountInfo(recording, accountType)
 	if accountName == "" || accountKey == "" {
 		return nil, errors.New(string(accountType) + AccountNameEnvVar + " and/or " + string(accountType) + AccountKeyEnvVar + " environment variables not specified.")
 	}
-	return NewSharedKeyCredential(accountName, accountKey)
+	return azblob.NewSharedKeyCredential(accountName, accountKey)
 }
 
-func getServiceClient(recording *testframework.Recording, accountType testAccountType, options *ClientOptions) (*ServiceClient, error) {
+func getServiceClient(recording *testframework.Recording, accountType testAccountType, options *service.ClientOptions) (*service.Client, error) {
 	if recording != nil {
 		if options == nil {
-			options = &ClientOptions{
+			options = &service.ClientOptions{
 				Transport: recording,
 				Retry:     policy.RetryOptions{MaxRetries: -1},
 			}
@@ -161,7 +151,7 @@ func getServiceClient(recording *testframework.Recording, accountType testAccoun
 	}
 
 	serviceURL, _ := url.Parse("https://" + cred.AccountName() + ".blob.core.windows.net/")
-	serviceClient := NewServiceClientWithSharedKey(serviceURL.String(), cred, options)
+	serviceClient, err := service.NewClientWithSharedKey(serviceURL.String(), cred, options)
 
 	return serviceClient, err
 }
@@ -175,10 +165,10 @@ func getConnectionString(recording *testframework.Recording, accountType testAcc
 }
 
 //nolint
-func getServiceClientFromConnectionString(recording *testframework.Recording, accountType testAccountType, options *ClientOptions) (*ServiceClient, error) {
+func getServiceClientFromConnectionString(recording *testframework.Recording, accountType testAccountType, options *service.ClientOptions) (*service.Client, error) {
 	if recording != nil {
 		if options == nil {
-			options = &ClientOptions{
+			options = &service.ClientOptions{
 				Transport: recording,
 				Retry:     policy.RetryOptions{MaxRetries: -1},
 			}
@@ -186,22 +176,17 @@ func getServiceClientFromConnectionString(recording *testframework.Recording, ac
 	}
 
 	connectionString := getConnectionString(recording, accountType)
-	primaryURL, cred, err := parseConnectionString(connectionString)
-	if err != nil {
-		return nil, err
-	}
-
-	svcClient := NewServiceClientWithSharedKey(primaryURL, cred, options)
+	svcClient, err := service.NewClientFromConnectionString(connectionString, options)
 	return svcClient, err
 }
 
 // 2. ContainerClient --------------------------------------------------------------------------------------------------
 
-func getContainerClient(containerName string, s *ServiceClient) *ContainerClient {
+func getContainerClient(containerName string, s *service.Client) *container.Client {
 	return s.NewContainerClient(containerName)
 }
 
-func createNewContainer(_require *require.Assertions, containerName string, serviceClient *ServiceClient) *ContainerClient {
+func createNewContainer(_require *require.Assertions, containerName string, serviceClient *service.Client) *container.Client {
 	containerClient := getContainerClient(containerName, serviceClient)
 
 	_, err := containerClient.Create(ctx, nil)
@@ -210,14 +195,20 @@ func createNewContainer(_require *require.Assertions, containerName string, serv
 	return containerClient
 }
 
-func deleteContainer(_require *require.Assertions, containerClient *ContainerClient) {
+func deleteContainer(_require *require.Assertions, containerClient *container.Client) {
 	_, err := containerClient.Delete(context.Background(), nil)
 	_require.Nil(err)
 }
 
 // 2. BlobClient -------------------------------------------------------------------------------------------------------
 
-func createNewBlobs(_require *require.Assertions, blobNames []string, containerClient *ContainerClient) {
+//nolint
+func getBlobClient(blockBlobName string, containerClient *container.Client) *blob.Client {
+	return containerClient.NewBlobClient(blockBlobName)
+}
+
+//nolint
+func createNewBlobs(_require *require.Assertions, blobNames []string, containerClient *container.Client) {
 	for _, blobName := range blobNames {
 		createNewBlockBlob(_require, blobName, containerClient)
 	}
@@ -225,27 +216,27 @@ func createNewBlobs(_require *require.Assertions, blobNames []string, containerC
 
 // 2a. BlockBlobClient -------------------------------------------------------------------------------------------------------
 
-func getBlockBlobClient(blockBlobName string, containerClient *ContainerClient) *BlockBlobClient {
+func getBlockBlobClient(blockBlobName string, containerClient *container.Client) *blockblob.Client {
 	return containerClient.NewBlockBlobClient(blockBlobName)
 }
 
-func createNewBlockBlob(_require *require.Assertions, blockBlobName string, containerClient *ContainerClient) *BlockBlobClient {
+func createNewBlockBlob(_require *require.Assertions, blockBlobName string, containerClient *container.Client) *blockblob.Client {
 	bbClient := getBlockBlobClient(blockBlobName, containerClient)
 
-	_, err := bbClient.Upload(ctx, internal.NopCloser(strings.NewReader(blockBlobDefaultData)), nil)
+	_, err := bbClient.Upload(ctx, NopCloser(strings.NewReader(blockBlobDefaultData)), nil)
 	_require.Nil(err)
 	// _require.Equal(cResp.RawResponse.StatusCode, 201)
 	return bbClient
 }
 
-func createNewBlockBlobWithCPK(_require *require.Assertions, blockBlobName string, containerClient *ContainerClient, cpkInfo *CpkInfo, cpkScopeInfo *CpkScopeInfo) (bbClient *BlockBlobClient) {
+func createNewBlockBlobWithCPK(_require *require.Assertions, blockBlobName string, containerClient *container.Client, cpkInfo *blob.CpkInfo, cpkScopeInfo *blob.CpkScopeInfo) (bbClient *blockblob.Client) {
 	bbClient = getBlockBlobClient(blockBlobName, containerClient)
 
-	uploadBlockBlobOptions := BlockBlobUploadOptions{
+	uploadBlockBlobOptions := blockblob.UploadOptions{
 		CpkInfo:      cpkInfo,
 		CpkScopeInfo: cpkScopeInfo,
 	}
-	cResp, err := bbClient.Upload(ctx, internal.NopCloser(strings.NewReader(blockBlobDefaultData)), &uploadBlockBlobOptions)
+	cResp, err := bbClient.Upload(ctx, NopCloser(strings.NewReader(blockBlobDefaultData)), &uploadBlockBlobOptions)
 	_require.Nil(err)
 	// _require.Equal(cResp.RawResponse.StatusCode, 201)
 	_require.Equal(*cResp.IsServerEncrypted, true)
@@ -260,11 +251,11 @@ func createNewBlockBlobWithCPK(_require *require.Assertions, blockBlobName strin
 
 // 2b. AppendBlobClient -------------------------------------------------------------------------------------------------------
 
-func getAppendBlobClient(appendBlobName string, containerClient *ContainerClient) *AppendBlobClient {
+func getAppendBlobClient(appendBlobName string, containerClient *container.Client) *appendblob.Client {
 	return containerClient.NewAppendBlobClient(appendBlobName)
 }
 
-func createNewAppendBlob(_require *require.Assertions, appendBlobName string, containerClient *ContainerClient) *AppendBlobClient {
+func createNewAppendBlob(_require *require.Assertions, appendBlobName string, containerClient *container.Client) *appendblob.Client {
 	abClient := getAppendBlobClient(appendBlobName, containerClient)
 
 	_, err := abClient.Create(ctx, nil)
@@ -275,16 +266,15 @@ func createNewAppendBlob(_require *require.Assertions, appendBlobName string, co
 
 // 2c. PageBlobClient -------------------------------------------------------------------------------------------------------
 
-func getPageBlobClient(pageBlobName string, containerClient *ContainerClient) *PageBlobClient {
+func getPageBlobClient(pageBlobName string, containerClient *container.Client) *pageblob.Client {
 	return containerClient.NewPageBlobClient(pageBlobName)
 }
 
-func createNewPageBlob(_require *require.Assertions, pageBlobName string, containerClient *ContainerClient) *PageBlobClient {
-	return createNewPageBlobWithSize(_require, pageBlobName, containerClient, internal.PageBlobPageBytes*10)
+func createNewPageBlob(_require *require.Assertions, pageBlobName string, containerClient *container.Client) *pageblob.Client {
+	return createNewPageBlobWithSize(_require, pageBlobName, containerClient, pageblob.PageBytes*10)
 }
 
-func createNewPageBlobWithSize(_require *require.Assertions, pageBlobName string,
-	containerClient *ContainerClient, sizeInBytes int64) *PageBlobClient {
+func createNewPageBlobWithSize(_require *require.Assertions, pageBlobName string, containerClient *container.Client, sizeInBytes int64) *pageblob.Client {
 	pbClient := getPageBlobClient(pageBlobName, containerClient)
 
 	_, err := pbClient.Create(ctx, sizeInBytes, nil)
@@ -293,10 +283,10 @@ func createNewPageBlobWithSize(_require *require.Assertions, pageBlobName string
 	return pbClient
 }
 
-func createNewPageBlobWithCPK(_require *require.Assertions, pageBlobName string, container *ContainerClient, sizeInBytes int64, cpkInfo *CpkInfo, cpkScopeInfo *CpkScopeInfo) (pbClient *PageBlobClient) {
+func createNewPageBlobWithCPK(_require *require.Assertions, pageBlobName string, container *container.Client, sizeInBytes int64, cpkInfo *blob.CpkInfo, cpkScopeInfo *blob.CpkScopeInfo) (pbClient *pageblob.Client) {
 	pbClient = getPageBlobClient(pageBlobName, container)
 
-	_, err := pbClient.Create(ctx, sizeInBytes, &PageBlobCreateOptions{
+	_, err := pbClient.Create(ctx, sizeInBytes, &pageblob.CreateOptions{
 		CpkInfo:      cpkInfo,
 		CpkScopeInfo: cpkScopeInfo,
 	})
@@ -347,7 +337,7 @@ func generateBlobName(testName string) string {
 
 func getReaderToGeneratedBytes(n int) io.ReadSeekCloser {
 	r, _ := generateData(n)
-	return internal.NopCloser(r)
+	return NopCloser(r)
 }
 
 //nolint
@@ -371,7 +361,7 @@ func generateData(sizeInBytes int) (io.ReadSeekCloser, []byte) {
 	} else {
 		copy(data[:], random64BString)
 	}
-	return internal.NopCloser(bytes.NewReader(data)), data
+	return NopCloser(bytes.NewReader(data)), data
 }
 
 // 5. Utility Functions ------------------------------------------------------------------------------------------------
@@ -387,6 +377,7 @@ func getRelativeTimeFromAnchor(anchorTime *time.Time, amount time.Duration) time
 	return anchorTime.Add(amount * time.Second)
 }
 
+//nolint
 func generateBlockIDsList(count int) []string {
 	blockIDs := make([]string, count)
 	for i := 0; i < count; i++ {

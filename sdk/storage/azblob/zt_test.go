@@ -2,16 +2,18 @@
 // +build go1.18
 
 // Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 
-package azblob
+package azblob_test
 
 import (
 	"context"
 	"errors"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/bloberror"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/service"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"io"
 	"log"
 	"strconv"
 	"strings"
@@ -37,8 +39,8 @@ type azblobUnrecordedTestSuite struct {
 
 // Hookup to the testing framework
 func Test(t *testing.T) {
-	suite.Run(t, &azblobTestSuite{mode: testframework.Live})
-	suite.Run(t, &azblobUnrecordedTestSuite{})
+	suite.Run(t, &azblobTestSuite{mode: testframework.Playback})
+	//suite.Run(t, &azblobUnrecordedTestSuite{})
 }
 
 type testContext struct {
@@ -111,15 +113,28 @@ func (s *azblobUnrecordedTestSuite) AfterTest(suite string, test string) {
 
 }
 
+type nopCloser struct {
+	io.ReadSeeker
+}
+
+func (n nopCloser) Close() error {
+	return nil
+}
+
+// NopCloser returns a ReadSeekCloser with a no-op close method wrapping the provided io.ReadSeeker.
+func NopCloser(rs io.ReadSeeker) io.ReadSeekCloser {
+	return nopCloser{rs}
+}
+
 // Some tests require setting service properties. It can take up to 30 seconds for the new properties to be reflected across all FEs.
 // We will enable the necessary property and try to run the test implementation. If it fails with an error that should be due to
 // those changes not being reflected yet, we will wait 30 seconds and try the test again. If it fails this time for any reason,
-// we fail the test. It is the responsibility of the the testImplFunc to determine which error string indicates the test should be retried.
+// we fail the test. It is the responsibility of the testImplFunc to determine which error string indicates the test should be retried.
 // There can only be one such string. All errors that cannot be due to this detail should be asserted and not returned as an error string.
-func runTestRequiringServiceProperties(_require *require.Assertions, svcClient *ServiceClient, code string,
-	enableServicePropertyFunc func(*require.Assertions, *ServiceClient),
-	testImplFunc func(*require.Assertions, *ServiceClient) error,
-	disableServicePropertyFunc func(*require.Assertions, *ServiceClient)) {
+func runTestRequiringServiceProperties(_require *require.Assertions, svcClient *service.Client, code string,
+	enableServicePropertyFunc func(*require.Assertions, *service.Client),
+	testImplFunc func(*require.Assertions, *service.Client) error,
+	disableServicePropertyFunc func(*require.Assertions, *service.Client)) {
 
 	enableServicePropertyFunc(_require, svcClient)
 	defer disableServicePropertyFunc(_require, svcClient)
@@ -133,25 +148,26 @@ func runTestRequiringServiceProperties(_require *require.Assertions, svcClient *
 	}
 }
 
-func enableSoftDelete(_require *require.Assertions, serviceClient *ServiceClient) {
+func enableSoftDelete(_require *require.Assertions, client *service.Client) {
 	days := int32(1)
-	_, err := serviceClient.SetProperties(ctx, &ServiceSetPropertiesOptions{
-		DeleteRetentionPolicy: &RetentionPolicy{Enabled: to.Ptr(true), Days: &days}})
+	_, err := client.SetProperties(ctx, &service.SetPropertiesOptions{
+		DeleteRetentionPolicy: &service.RetentionPolicy{Enabled: to.Ptr(true), Days: &days}})
 	_require.Nil(err)
 }
 
-func disableSoftDelete(_require *require.Assertions, bsu *ServiceClient) {
-	_, err := bsu.SetProperties(ctx, &ServiceSetPropertiesOptions{DeleteRetentionPolicy: &RetentionPolicy{Enabled: to.Ptr(false)}})
+func disableSoftDelete(_require *require.Assertions, client *service.Client) {
+	_, err := client.SetProperties(ctx, &service.SetPropertiesOptions{DeleteRetentionPolicy: &service.RetentionPolicy{Enabled: to.Ptr(false)}})
 	_require.Nil(err)
 }
 
-func validateUpload(_require *require.Assertions, blobClient *BlobClient) {
-	resp, err := blobClient.Download(ctx, nil)
-	_require.Nil(err)
-	data, err := ioutil.ReadAll(resp.Body(nil))
-	_require.Nil(err)
-	_require.Len(data, 0)
-}
+////nolint
+//func validateUpload(_require *require.Assertions, blobClient *blob.Client) {
+//	resp, err := blobClient.Download(ctx, nil)
+//	_require.Nil(err)
+//	data, err := ioutil.ReadAll(resp.BodyReader(nil))
+//	_require.Nil(err)
+//	_require.Len(data, 0)
+//}
 
 func validateHTTPErrorCode(_require *require.Assertions, err error, code int) {
 	_require.NotNil(err)
@@ -164,7 +180,7 @@ func validateHTTPErrorCode(_require *require.Assertions, err error, code int) {
 	}
 }
 
-func validateStorageErrorCode(_require *require.Assertions, err error, code StorageErrorCode) {
+func validateBlobErrorCode(_require *require.Assertions, err error, code bloberror.Code) {
 	_require.NotNil(err)
 	var responseErr *azcore.ResponseError
 	errors.As(err, &responseErr)

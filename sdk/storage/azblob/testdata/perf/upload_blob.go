@@ -7,6 +7,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blockblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
 	"io"
 	"os"
 
@@ -29,7 +31,7 @@ type uploadTestGlobal struct {
 	perf.PerfTestOptions
 	containerName         string
 	blobName              string
-	globalContainerClient *azblob.ContainerClient
+	globalContainerClient *container.Client
 }
 
 // NewUploadTest is called once per process
@@ -45,10 +47,12 @@ func NewUploadTest(ctx context.Context, options perf.PerfTestOptions) (perf.Glob
 		return nil, fmt.Errorf("the environment variable 'AZURE_STORAGE_CONNECTION_STRING' could not be found")
 	}
 
-	containerClient := azblob.NewContainerClientFromConnectionString(connStr, u.containerName, nil)
-
+	containerClient, err := container.NewClientFromConnectionString(connStr, u.containerName, nil)
+	if err != nil {
+		return nil, err
+	}
 	u.globalContainerClient = containerClient
-	_, err := u.globalContainerClient.Create(context.Background(), nil)
+	_, err = u.globalContainerClient.Create(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +69,7 @@ type uploadPerfTest struct {
 	*uploadTestGlobal
 	perf.PerfTestOptions
 	data       io.ReadSeekCloser
-	blobClient *azblob.BlockBlobClient
+	blobClient *blockblob.Client
 }
 
 // NewPerfTest is called once per goroutine
@@ -80,14 +84,20 @@ func (g *uploadTestGlobal) NewPerfTest(ctx context.Context, options *perf.PerfTe
 		return nil, fmt.Errorf("the environment variable 'AZURE_STORAGE_CONNECTION_STRING' could not be found")
 	}
 
-	containerClient := azblob.NewContainerClientFromConnectionString(
+	containerClient, err := container.NewClientFromConnectionString(
 		connStr,
 		u.uploadTestGlobal.containerName,
 		&azblob.ClientOptions{
 			Transport: u.PerfTestOptions.Transporter,
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
 	bc := containerClient.NewBlockBlobClient(u.blobName)
+	if err != nil {
+		return nil, err
+	}
 	u.blobClient = bc
 
 	data, err := perf.NewRandomStream(uploadTestOpts.size)
