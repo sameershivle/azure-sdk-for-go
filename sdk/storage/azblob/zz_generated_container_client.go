@@ -1337,8 +1337,13 @@ func (client *containerClient) setMetadataCreateRequest(ctx context.Context, con
 			req.Raw().Header.Set("x-ms-meta-"+k, v)
 		}
 	}
-	if modifiedAccessConditions != nil && modifiedAccessConditions.IfModifiedSince != nil {
-		req.Raw().Header.Set("If-Modified-Since", modifiedAccessConditions.IfModifiedSince.Format(time.RFC1123))
+	if modifiedAccessConditions != nil {
+		if modifiedAccessConditions.IfModifiedSince != nil {
+		   req.Raw().Header.Set("If-Modified-Since", modifiedAccessConditions.IfModifiedSince.Format(time.RFC1123))
+	    }
+		if modifiedAccessConditions.IfMatch != nil {
+			req.Raw().Header.Set("If-Match", modifiedAccessConditions.IfMatch)
+		 }
 	}
 	req.Raw().Header.Set("x-ms-version", "2020-10-02")
 	if containerClientSetMetadataOptions != nil && containerClientSetMetadataOptions.RequestID != nil {
